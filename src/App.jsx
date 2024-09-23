@@ -8,7 +8,6 @@ import ModalReplaceValue from "./components/ModalReplaceValue";
 function App() {
   const [rawFileContent, setRawFileContent] = useState("");
   const [fileName, setFileName] = useState("");
-  const [message, setMessage] = useState("");
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [numbersModal, setNumbersModal] = useState("");
 
@@ -20,6 +19,7 @@ function App() {
     setRawFileContent(content);
     const convertedFileName = name.replace(/\.[^/.]+$/, "") + "_converted.csv";
     setFileName(convertedFileName);
+
   };
 
   const convertCSV = () => {
@@ -49,32 +49,30 @@ function App() {
       return;
     }
   
-    // Convertendo os valores digitados (sejam números ou palavras) em um array
+    // Dividir os valores pelo espaço, sem substituir vírgulas por pontos
     const values = numbersModal.split(/\s+/).map(value => {
-      // Substituir vírgula por ponto para padronizar e tentar converter em número
-      const parsedValue = value.replace(',', '.');
-      return isNaN(parsedValue) ? value : Number(parsedValue);
+      return isNaN(value) ? value : Number(value);
     });
   
     let currentIndex = 0;
   
-    // Substituir cada ocorrência de "valor" por um valor do array (número ou palavra)
     let modifiedContent = rawFileContent.replace(/valor/g, () => {
       if (currentIndex < values.length) {
         return values[currentIndex++];
       }
-      return "substituido"; // Valor padrão quando os valores digitados acabam
+      return "substituido"; 
     });
   
     // Salvar o arquivo modificado como KML
     const blob = new Blob([modifiedContent], {
-      type: "application/vnd.google-earth.kml+xml;charset=utf-8;", // Tipo MIME para KML
+      type: "application/vnd.google-earth.kml+xml;charset=utf-8;", 
     });
-    const kmlFileName = fileName.replace(/\.[^/.]+$/, "") + "_modified.kml"; // Adicionar _modified ao nome do arquivo
+    const kmlFileName = fileName.replace(/\.[^/.]+$/, "") + "_replaced.kml"; 
     saveAs(blob, kmlFileName);
   
     closeModal();
   };
+  
   
   
   
@@ -86,11 +84,11 @@ function App() {
       <div className="flex justify-center items-center gap-16 mt-16">
         <BtnDefault text={"Conversor CSV"} onClick={convertCSV} />
         <BtnDefault text={"Substituir Valores"} onClick={openModal} />
-        <BtnDefault text={"Substituir Caractéres"} />
+        <BtnDefault text={"Substituir Caracteres"} />
       </div>
 
       <div className="mt-48 justify-center items-center flex">
-        <InputUpload onFileProcessed={handleFileUpload} message={message} />
+        <InputUpload onFileProcessed={handleFileUpload} />
       </div>
 
       {/* Usar o componente Modal */}
